@@ -18,7 +18,7 @@ import urllib.request
 import urllib.parse
 import webbrowser
 from time import time
-from typing import Optional, Union, Literal
+from typing import Optional, Union, Literal, Sequence
 
 
 class AsciiArt:
@@ -269,7 +269,7 @@ class AsciiArt:
         front: Optional[Union[Front, str]] = None,
         back: Optional[Union[Back, str]] = None,
         debug: bool = False,
-    ) -> Union[str, list[list[dict]]]:
+    ) -> Union[str, list[list[dict[str, str]]]]:
         if monochrome and full_color:
             full_color = False
 
@@ -295,7 +295,7 @@ class AsciiArt:
         if enhance_image:
             rgb_img = ImageEnhance.Brightness(rgb_img).enhance(1.2)
             rgb_img = ImageEnhance.Color(rgb_img).enhance(1.2)
-        color_palette = self._image.getpalette()
+        color_palette: Optional[list[int]] = self._image.getpalette()
 
         grayscale_img = rgb_img.convert("L")
 
@@ -305,27 +305,36 @@ class AsciiArt:
             rgb_img.save("rgb.jpg")
             grayscale_img.save("grayscale.jpg")
 
-        lines = []
+        lines: list[list[dict[str, str]]] = []
         for h in range(img_h):
-            line = []
+            line: list[dict[str, str]] = []
             for w in range(img_w):
                 # get brightness value
                 brightness = self.get_brightness_value(grayscale_img, w, h)
                 pixel = rgb_img.getpixel((w, h))
 
+                pixel_rgb: tuple[int, int, int]
+
                 # getpixel() may return an int, instead of tuple of ints, if the source img is a PNG with a transparency layer
                 if isinstance(pixel, (int, float)):
-                    pixel = (
-                        (pixel, pixel, 255)
-                        if color_palette is None
-                        else tuple(color_palette[pixel * 3 : pixel * 3 + 3])
-                    )
-                elif pixel is None:
-                    pixel = (0, 0, 0)
+                    pixel_index = int(pixel)
+                    if color_palette is None:
+                        pixel_rgb = (pixel_index, pixel_index, 255)
+                    else:
+                        start = pixel_index * 3
+                        pal = color_palette[start : start + 3]
+                        if len(pal) < 3:
+                            pixel_rgb = (0, 0, 0)
+                        else:
+                            pixel_rgb = (int(pal[0]), int(pal[1]), int(pal[2]))
+                elif isinstance(pixel, (tuple, list)) and len(pixel) >= 3:
+                    pixel_rgb = (int(pixel[0]), int(pixel[1]), int(pixel[2]))
+                else:
+                    pixel_rgb = (0, 0, 0)
 
-                rgb = [(v / 255.0) ** 2.2 for v in pixel]
-                char = chars[int(brightness * (len(chars) - 1))]
-                character = self.get_color_data(char, rgb, brightness)
+                rgb = [(v / 255.0) ** 2.2 for v in pixel_rgb]
+                pixel_char = chars[int(brightness * (len(chars) - 1))]
+                character = self.get_color_data(pixel_char, rgb, brightness)
 
                 line.append(character)
             lines.append(line)
@@ -365,12 +374,12 @@ class AsciiArt:
             return art
 
         if mode == Modes.OBJECT:
-            art = []
+            object_art: list[list[dict[str, str]]] = []
             for line in lines:
-                art.append([])
+                object_art.append([])
                 for character in line:
-                    art[-1].append(character)
-            return art
+                    object_art[-1].append(character)
+            return object_art
 
         if mode == Modes.HTML_MONOCHROME:
             art = ""
@@ -417,6 +426,8 @@ class AsciiArt:
                 art += "<br />"
 
             return art
+
+        raise ValueError("Unknown output mode " + str(mode))
 
     @staticmethod
     def get_brightness_value(img: Image.Image, w: int, h: int) -> float:
@@ -478,12 +489,14 @@ class AsciiArt:
         return color
 
     @staticmethod
-    def l2_min(v1: Union[list, tuple], v2: Union[list, tuple]) -> float:
+    def l2_min(v1: Sequence[float], v2: Sequence[float]) -> float:
         return (v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 + (v1[2] - v2[2]) ** 2
 
     @staticmethod
-    def get_color_data(char: str, rgb: Union[list, tuple], brightness: float) -> dict:
-        min_distance = 2
+    def get_color_data(
+        char: str, rgb: Sequence[float], brightness: float
+    ) -> dict[str, str]:
+        min_distance: float = 2.0
         index = 0
 
         for i in range(len(PALETTE)):
