@@ -3,11 +3,11 @@ from PIL import ImageFont
 import os
 
 
-class AsciiArtFont():
+class AsciiArtFont:
     FONT_SIZE = 18
 
     def __init__(self, font: str):
-        font_path = os.path.join(os.path.dirname(__file__), 'fonts', font)
+        font_path = os.path.join(os.path.dirname(__file__), "fonts", font)
         if os.path.exists(font_path):
             self._font = ImageFont.truetype(font=font_path, size=self.FONT_SIZE)
         else:
@@ -16,7 +16,7 @@ class AsciiArtFont():
     def get_font(self) -> ImageFont.FreeTypeFont:
         return self._font
 
-    def get_char_size(self, character: str = 'M') -> tuple[int, int, int]:
+    def get_char_size(self, character: str = "M") -> tuple[int, int, int]:
         bbox = self._font.getbbox(character)
         char_width = int(bbox[2] - bbox[0])
         char_height = int(bbox[3] - bbox[1])

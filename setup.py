@@ -16,13 +16,16 @@ setuptools.setup(
     include_package_data=True,
     data_files=[
         ("ascii_magic/fonts", ["ascii_magic/fonts/courier_prime.ttf"]),
-        ("ascii_magic/tests", ["ascii_magic/tests/lion.jpg", "ascii_magic/tests/chicken_transparent.png"]),
+        (
+            "ascii_magic/tests",
+            ["ascii_magic/tests/lion.jpg", "ascii_magic/tests/chicken_transparent.png"],
+        ),
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
-    install_requires=['Pillow'],
+    python_requires=">=3.5",
+    install_requires=["Pillow"],
 )

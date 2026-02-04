@@ -9,4 +9,4 @@ def test_from_clipboard():
         my_art = AsciiArt.from_clipboard()
         my_art.to_terminal(columns=100)
     except OSError:
-        pytest.skip('No image found in the clipboard')
+        pytest.skip("No image found in the clipboard")
