@@ -41,8 +41,10 @@ def from_swarmui(
     height: int = 720,
     steps: int = 20,
     raw_input: dict = {},
-    server: str = 'http://localhost:7801',
-    model: str = 'auto',
+    server: str = "http://localhost:7801",
+    model: str = "auto",
     debug: bool = False,
 ) -> AsciiArt:
-    return AsciiArt.from_swarmui(prompt, width, height, steps, raw_input, server, model, debug)
+    return AsciiArt.from_swarmui(
+        prompt, width, height, steps, raw_input, server, model, debug
+    )

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from enum import Enum
+from typing import Final, TypeAlias
 
 
 class Front(Enum):
@@ -42,31 +45,40 @@ class Back(Enum):
 
 
 class Modes(Enum):
-    ASCII = 'ASCII'
-    TERMINAL = 'TERMINAL'
-    OBJECT = 'OBJECT'
+    ASCII = "ASCII"
+    TERMINAL = "TERMINAL"
+    OBJECT = "OBJECT"
 
-    HTML = 'HTML'
-    HTML_MONOCHROME = 'HTML_MONOCHROME'
-    HTML_TERMINAL = 'HTML_TERMINAL'
-    HTML_FULL_COLOR = 'HTML_FULL_COLOR'
+    HTML = "HTML"
+    HTML_MONOCHROME = "HTML_MONOCHROME"
+    HTML_TERMINAL = "HTML_TERMINAL"
+    HTML_FULL_COLOR = "HTML_FULL_COLOR"
 
 
 _COLOR_DATA = [
-    [(0, 0, 0), Front.LIGHTBLACK, '#222'],
-    [(0, 0, 255), Front.BLUE, '#00F'],
-    [(0, 255, 0), Front.GREEN, '#0F0'],
-    [(255, 0, 0), Front.RED, '#F00'],
-    [(255, 255, 255), Front.WHITE, '#FFF'],
-    [(255, 0, 255), Front.MAGENTA, '#F0F'],
-    [(0, 255, 255), Front.CYAN, '#0FF'],
-    [(255, 255, 0), Front.YELLOW, '#FF0']
+    ((0, 0, 0), Front.LIGHTBLACK, "#222"),
+    ((0, 0, 255), Front.BLUE, "#00F"),
+    ((0, 255, 0), Front.GREEN, "#0F0"),
+    ((255, 0, 0), Front.RED, "#F00"),
+    ((255, 255, 255), Front.WHITE, "#FFF"),
+    ((255, 0, 255), Front.MAGENTA, "#F0F"),
+    ((0, 255, 255), Front.CYAN, "#0FF"),
+    ((255, 255, 0), Front.YELLOW, "#FF0"),
 ]
 
-PALETTE = [[[(v / 255.0)**2.2 for v in x[0]], x[1], x[2]] for x in _COLOR_DATA]
+RGB8: TypeAlias = tuple[int, int, int]
+ColorDataRow: TypeAlias = tuple[RGB8, Front, str]
+PaletteRow: TypeAlias = tuple[list[float], Front, str]
 
-CHARS_BY_DENSITY = ' .`-_\':,;^=+/"|)\\<>)iv%xclrs{*}I?!][1taeo7zjLunT#JCwfy325Fp6mqSghVd4EgXPGZbYkOA&8U$@KHDBWNMR0QQ'
+_COLOR_DATA: Final[list[ColorDataRow]] = _COLOR_DATA
 
-DEFAULT_STYLES = 'display: inline-block; border-width: 4px 6px; border-color: black; color: white; border-style: solid; background-color:black; font-size: 8px;'
+PALETTE: Final[list[PaletteRow]] = [
+    ([(v / 255.0) ** 2.2 for v in rgb], term_color, hex_color)
+    for (rgb, term_color, hex_color) in _COLOR_DATA
+]
 
-DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash-image'
+CHARS_BY_DENSITY = " .`-_':,;^=+/\"|)\\<>)iv%xclrs{*}I?!][1taeo7zjLunT#JCwfy325Fp6mqSghVd4EgXPGZbYkOA&8U$@KHDBWNMR0QQ"
+
+DEFAULT_STYLES = "display: inline-block; border-width: 4px 6px; border-color: black; color: white; border-style: solid; background-color:black; font-size: 8px;"
+
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-image"
